@@ -1,0 +1,11 @@
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\app\Main.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\exception\DuplicateEmployeeException.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\exception\EmployeeManagementException.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\exception\EmployeeNotFoundException.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\exception\EmployeeStorageException.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\exception\InvalidEmployeeDataException.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\model\Employee.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\repository\EmployeeRecord.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\repository\EmployeeRepository.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\repository\FileEmployeeRepository.java
+C:\Projetos\Java\EmployeeManagementSystem\src\main\java\com\pedrodias\service\EmployeeService.java
