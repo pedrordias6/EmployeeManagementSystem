@@ -1,42 +1,42 @@
 # Employee Management System
 
-![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-brightgreen?logo=springboot&logoColor=white)
-![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven&logoColor=white)
+![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?logo=springboot&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
-A console-based Employee Management System built with **Java 17** and **Spring Boot**, demonstrating a clean, layered architecture with JSON file persistence, input validation, and business-rule enforcement.
+Employee Management System is a command-line application for managing employee records: adding, listing, searching, updating, and removing employees through a text-based menu.
 
-## Description
-
-This project is an interactive command-line application for managing employee records — adding, listing, searching, updating, and removing employees through a simple text menu.
-
-It was built as a hands-on exercise in applying **Clean Code**, **SOLID principles**, and **Clean Architecture** to a small, real-world CRUD domain: from a plain in-memory prototype, through JSON file persistence with Jackson, to a fully Spring Boot–managed application with dependency injection.
-
-Rather than a toy script, it is structured the way a production service would be — with a domain model, a persistence abstraction, a business/service layer, and a presentation layer, each with clear responsibilities and its own test coverage.
+It is built with Java 17 and Spring Boot 3.3.5, organized into separate layers for presentation, business rules, and persistence. Employee data is validated in the domain model and stored in a local JSON file.
 
 ## Features
 
-- **Interactive console menu** — add, list, search, update, and remove employees
-- **Domain validation** — name, position, and department cannot be blank; email must be well-formed; salary cannot be negative
-- **Business rule enforcement** — no two employees may share the same email address; operations on unknown IDs are rejected with clear errors
-- **JSON file persistence** — employees are automatically loaded on startup and saved after every change, powered by Jackson
-- **Layered, testable architecture** — domain model, repository, service, and presentation layers are fully decoupled via interfaces
-- **Dependency injection** — wired together with Spring Boot (`@Service`, `@Repository`, `@Component`, constructor injection)
-- **Custom exception hierarchy** — precise, catchable error types instead of generic runtime exceptions
-- **Unit tested** — JUnit 5 test suite covering the domain model, repository, and service layers
+- **Console menu** — add, list, search, update, and remove employees through a text-based menu
+- **Domain validation** — name, position, and department cannot be blank; email must match a valid format; salary cannot be negative
+- **Business rules** — duplicate email addresses are rejected (case-insensitive); updates and removals on unknown IDs are rejected
+- **JSON file persistence** — employees are loaded on startup and saved after every change, using Jackson
+- **Layered architecture** — domain, repository, service, and presentation layers are decoupled through interfaces
+- **Dependency injection** — wired with Spring Boot (`@Service`, `@Repository`, `@Component`, constructor injection)
+- **Typed exceptions** — specific exception types instead of generic runtime exceptions
+- **Unit tests** — covering the domain model, repository, and service layers
 
-## Technologies Used
+## Architecture
 
-| Technology | Purpose |
-|---|---|
-| [Java 17](https://openjdk.org/projects/jdk/17/) | Core language |
-| [Spring Boot 3.3.5](https://spring.io/projects/spring-boot) | Dependency injection, application bootstrap, configuration |
-| [Maven](https://maven.apache.org/) | Build and dependency management |
-| [Jackson](https://github.com/FasterXML/jackson) | JSON serialization/deserialization for file persistence |
-| [JUnit 5](https://junit.org/junit5/) | Unit testing |
+```mermaid
+flowchart TD
+    A["Terminal (stdin/stdout)"] --> B["ConsoleMenuRunner<br/>(Presentation Layer)"]
+    B --> C["EmployeeService<br/>(Business Rules)"]
+    C --> D["EmployeeRepository<br/>(Interface)"]
+    D --> E["FileEmployeeRepository<br/>(Implementation)"]
+    E --> F[("employees.json")]
 
-## Project Structure
+    S["Spring Boot IoC Container"] -. constructor injection .-> B
+    S -. constructor injection .-> C
+    S -. constructor injection .-> E
+```
+
+Each arrow from `EmployeeService` downward is a dependency on an interface, not a concrete class: `EmployeeService` depends on `EmployeeRepository`, never on `FileEmployeeRepository` directly. Replacing JSON file storage with a database means writing a new `EmployeeRepository` implementation; nothing above the repository layer changes.
+
+## Folder Structure
 
 ```
 EmployeeManagementSystem/
@@ -46,7 +46,7 @@ EmployeeManagementSystem/
 │   │   │   ├── app/            # Application entry point and console menu (presentation layer)
 │   │   │   │   ├── Main.java
 │   │   │   │   └── ConsoleMenuRunner.java
-│   │   │   ├── model/          # Domain model (immutable, self-validating)
+│   │   │   ├── model/          # Domain model — immutable, self-validating
 │   │   │   │   └── Employee.java
 │   │   │   ├── repository/     # Persistence layer (interface + JSON file implementation)
 │   │   │   │   ├── EmployeeRepository.java
@@ -64,34 +64,52 @@ EmployeeManagementSystem/
 │   │       └── application.properties
 │   └── test/
 │       └── java/com/pedrodias/
-│           ├── model/
-│           ├── repository/
-│           └── service/
+│           ├── model/          # Employee validation tests
+│           ├── repository/     # File persistence tests
+│           └── service/        # Business rule tests
 ├── pom.xml
 └── README.md
 ```
 
-## How to Run Locally
+| Layer | Responsibility |
+|---|---|
+| `app` | Boots Spring, runs the console loop, and translates menu input into service calls |
+| `model` | `Employee`, the domain object — validates its own fields when constructed |
+| `repository` | `EmployeeRepository` interface and its JSON file implementation |
+| `service` | Business rules: email uniqueness and existence checks before update or delete |
+| `exception` | Typed exceptions used in place of generic `RuntimeException` |
+
+## Technologies
+
+| Technology | Purpose |
+|---|---|
+| [Java 17](https://openjdk.org/projects/jdk/17/) | Language and runtime |
+| [Spring Boot 3.3.5](https://spring.io/projects/spring-boot) | Dependency injection and application bootstrap (no web server is started) |
+| [Maven](https://maven.apache.org/) | Build and dependency management |
+| [Jackson](https://github.com/FasterXML/jackson) | JSON serialization for file-based persistence |
+| [JUnit 5](https://junit.org/junit5/) | Unit testing |
+
+## Quick Start
 
 ### Prerequisites
 
 - [JDK 17](https://adoptium.net/) or later
 - [Maven 3.9+](https://maven.apache.org/download.cgi)
 
-### Clone the repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/pedrordias6/EmployeeManagementSystem.git
 cd EmployeeManagementSystem
 ```
 
-### Build
+### 2. Build
 
 ```bash
 mvn clean package
 ```
 
-### Run
+### 3. Run
 
 ```bash
 mvn spring-boot:run
@@ -103,7 +121,7 @@ Or run the packaged jar directly:
 java -jar target/EmployeeManagementSystem-1.0-SNAPSHOT.jar
 ```
 
-The application runs in the terminal and presents an interactive menu:
+### 4. Use the menu
 
 ```
 === Employee Management System ===
@@ -116,28 +134,52 @@ The application runs in the terminal and presents an interactive menu:
 Choose an option:
 ```
 
-Employee data is persisted to `employees.json` in the working directory by default. The file path can be overridden via `application.properties`:
-
-```properties
-employee.storage.file-path=employees.json
-```
-
-### Run the tests
+### 5. Run the tests
 
 ```bash
 mvn test
 ```
 
-## Future Improvements
+### Configuration
 
-- [ ] Expose employee operations through a REST API (Spring Web)
-- [ ] Replace JSON file storage with a relational database (PostgreSQL/H2 + Spring Data JPA)
-- [ ] Add pagination and filtering for large employee lists
-- [ ] Add authentication and role-based access control
-- [ ] Containerize the application with Docker
-- [ ] Set up a CI pipeline (GitHub Actions) for automated build and test
-- [ ] Build a web or desktop front end
+Employee data is persisted to `employees.json` in the working directory by default. The file path can be overridden in `application.properties`:
+
+```properties
+employee.storage.file-path=employees.json
+```
+
+## Performance Notes
+
+At the current scale — an in-memory map backed by a JSON file — the design favors simplicity over optimization:
+
+- Email-uniqueness checks scan every employee (`O(n)`) on each add or update. This is fine for file-based storage and would be the first thing to replace with an indexed query if `EmployeeRepository` were backed by a database.
+- The entire employee list is rewritten to disk on every mutation, so the JSON file always matches in-memory state. The trade-off is write amplification, which is acceptable for a single-user console tool.
+- `Employee` is immutable, so it can be read or shared without defensive copying.
+
+## Roadmap
+
+**Completed**
+- [x] In-memory prototype with domain validation
+- [x] JSON file persistence via Jackson
+- [x] Spring Boot dependency injection
+- [x] Custom exception hierarchy
+- [x] Unit tests for the model, repository, and service layers
+
+**Next**
+- [ ] REST API (Spring Web)
+- [ ] Relational database persistence (PostgreSQL or H2, via Spring Data JPA)
+
+**Future**
+- [ ] Pagination and filtering
+- [ ] Authentication and role-based access control
+- [ ] Docker packaging
+- [ ] CI pipeline (GitHub Actions)
+- [ ] Web or desktop front end
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+Author: [Pedro Dias](https://github.com/pedrordias6)
